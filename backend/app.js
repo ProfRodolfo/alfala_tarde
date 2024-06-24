@@ -11,5 +11,5 @@ app.use('/livros', routerLivros);
 
 // Iniciar o servidor
 app.listen(port, () =>{
-    console.log(`Estudando na porta ${port}`)
+    console.log(`Escutando na porta ${port}`)
 })

@@ -1,1 +1,28 @@
-## Iniciando front e back juntos
+## Conectando front ao Back
+
+1) Voltaremos ao código acessando a nossa IDE. Nela, abriremos o projeto `frontend`, 
+
+```bash
+npm install react-router-dom
+
+```
+
+2) Continuando em `frontend`vá ao arquivo index.js e adicione no import:
+
+```index.js
+import { BrowserRouter, Routes, Route } from "react-router-dom"
+```
+
+
+- ***BrowserRouter*** é um componente do React Router que fornece o contexto de roteamento para a sua aplicação.
+Ele usa a API de histórico do navegador (History API) para manter a interface do usuário sincronizada com a URL.
+Esse componente deve envolver toda a sua aplicação React para que as rotas funcionem corretamente.
+Routes:
+
+- ***Routes*** é um componente do React Router que define o conjunto de rotas da sua aplicação. Ele é responsável por renderizar o componente correto com base na URL atual. Dentro do Routes, você define as diferentes rotas da sua aplicação usando o componente Route.
+
+- ***Route:*** O Route é o componente do React Router que define uma rota individual. Ele possui dois atributos principais:
+ -- `path`: define o caminho da URL que deve corresponder a essa rota.
+ -- `element`: define o componente React que deve ser renderizado quando essa rota for acessada.
+
+3) No mesmo arquivo vamos adicionar BrowserRouter, Routes e Route path..."
