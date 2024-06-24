@@ -1,5 +1,3 @@
-
-
 import { livros } from './dadosUltimosLancamentos'
 import { Titulo } from '../Titulo'
 import CardRecomenda from '../CardRecomenda'
@@ -32,7 +30,7 @@ function UltimosLancamentos() {
            </Titulo>
            <NovosLivrosContainer>
                {livros.map( livro => (
-                   <img src={livro.src}/>
+                   <img src={livro.src} alt='img'/>
                ))}
            </NovosLivrosContainer>
            <CardRecomenda
