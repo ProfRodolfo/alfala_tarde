@@ -448,3 +448,383 @@ app.use(cors({ origin: "*" }))
 
 
 PALMAS DEU CERTO!!!!
+
+
+26) Analisando nosso site, o fluxo que faz mais sentido é acessar a home, buscar por um livro e adicioná-lo nos Favoritos. Depois, para visualizá-lo, acessar a página Favoritos.
+
+Para desenvolver esse fluxo a primeira coisa que faremos é voltar na nossa API. Criaremos uma nova rota de livros favoritos para podermos salvar, fazer inserções e edições.
+
+backend
+```livro.json
+[
+    {
+        "id": "1",
+        "nome": "As tranças do rei Careca"
+    },
+    {
+        "id": "2",
+        "nome": "Cale-se para não falar bobagem"
+    },
+    {
+        "id": "3",
+        "nome": "Já pensou em platar batata?"
+    },
+    {
+        "id": "4",
+        "nome": "Entendendo algoritmos"
+      },
+      {
+        "id": "5",
+        "nome": "Cangaceiro Javascript"
+      },
+      {
+        "id": "7",
+        "nome": "Guia básico de C#"
+      },
+      {
+        "id": "8",
+        "nome": "Guia básico de JavaScript"
+      },
+      {
+        "id": "9",
+        "nome": "Código Limpo"
+      },
+      {
+        "id": "10",
+        "nome": "JavaScript para iniciantes"
+      },
+      {
+        "id": "11",
+        "nome": "Conhecendo o python"
+      },
+      {
+        "id": "12",
+        "nome": "Imersão Senac"
+      }
+]
+```
+
+Crie um arquivo chamado `favoritos.json` e digite
+
+```favoritos.json
+[
+    {
+      "id": "4",
+      "nome": "Entendendo algoritmos"
+    }
+]
+```
+
+26) Em backend Services  crie um arquivo com o nome de `favoritosServices.js` e digite
+
+``` favoritosServices.js
+import fs from 'fs';
+
+function getTodosFavoritos() {
+    return JSON.parse(fs.readFileSync("favoritos.json"))
+}
+
+function deletaFavoritoPorId(id) {
+    const livros = JSON.parse(fs.readFileSync("favoritos.json"))
+
+    const livrosFiltrados = livros.filter(livro => livro.id !== id)
+    fs.writeFileSync("favoritos.json", JSON.stringify(livrosFiltrados))
+}
+
+function insereFavorito(id) {
+    const livros = JSON.parse(fs.readFileSync("livros.json"))
+    const favoritos = JSON.parse(fs.readFileSync("favoritos.json"))
+
+    const livroInserido = livros.find(livro => livro.id === id)
+    const novaListaDeLivrosFavoritos = [...favoritos, livroInserido]
+    fs.writeFileSync("favoritos.json", JSON.stringify(novaListaDeLivrosFavoritos))
+}
+
+export {
+    getTodosFavoritos,
+    deletaFavoritoPorId,
+    insereFavorito
+}
+
+```
+
+27) Em Controllers crie o arquivo favoritosController.js e digite
+
+
+```
+
+import { getTodosFavoritos, insereFavorito, deletaFavoritoPorId } from '../Services/favoritosServices.js'
+
+export const getFavoritos = (req, res) => {
+    try {
+        const livros = getTodosFavoritos()
+        res.send(livros)
+    } catch (error) {
+        res.status(500)
+        res.send(error.message)
+    } 
+}
+
+export const postFavorito = (req, res) => {
+    try {
+        const id = req.params.id
+        insereFavorito(id)
+        res.status(201)
+        res.send("Livro inserido com sucesso")
+    } catch(error) {
+        res.status(500)
+        res.send(error.message)
+    }
+}
+
+export const deleteFavorito = (req, res) => {
+    try {
+        const id = req.params.id
+
+        if(id && Number(id)) {
+            deletaFavoritoPorId(id)
+            res.send("Favorito deletado com sucesso")
+        } else {
+            res.status(422)
+            res.send("ID inválido")
+        }
+    } catch (error) {
+        res.status(500)
+        res.send(error.message)
+    } 
+}
+
+
+```
+
+28) Em routes crie um arquivo chamado `favoritosRoutes.js` e digite 
+
+``` favoritosRoutes.js
+import { getFavoritos, postFavorito, deleteFavorito } from '../Controllers/favoritosController.js';
+import { Router } from 'express';
+const router = Router();
+
+router.get('/', getFavoritos)
+router.post('/:id', postFavorito)
+router.delete('/:id', deleteFavorito)
+
+export default router;
+
+```
+
+29) Em app.js  ajuste para 
+
+
+```app.js
+import express from 'express';
+import routerLivro from './Routes/livroRoutes.js'
+import routerFavorito from './routes/favoritosRoutes.js'
+import cors from 'cors'
+
+
+const app = express();
+app.use(express.json())
+app.use(cors({ origin: "*" }))
+
+const port = 8000;
+
+// Montagem do roteador "livros"
+app.use('/livros', routerLivro);
+// Montagem do roteador "favoritos"
+app.use('/favoritos', routerFavorito);
+
+// Iniciar o servidor
+app.listen(port, () => {
+  console.log(`Aplicação escutando na porta ${port}`);
+});
+
+```
+
+###voltando ao front
+
+
+30) Em routes | **Favoritos.js** ajuste:
+
+  - Apague o componente Pesquisa
+  - Apague os imports não utilizados
+
+  ```
+  
+import styled from 'styled-components';
+
+const AppContainer = styled.div ` 
+//código omitido
+`
+
+function Favoritos() {
+  return (
+    <AppContainer>
+    </AppContainer>
+  );
+}
+
+export default Favoritos
+
+  ```
+
+31) Em services crie um arquivo chamado `favoritos.js` e digite
+
+```services | favoritos.js
+import axios from "axios"
+
+const favoritosAPI = axios.create({baseURL: "http://localhost:8000/favoritos"})
+
+async function getFavoritos() {
+        const response = await favoritosAPI.get('/')
+
+        return response.data
+
+}
+
+export {
+        getFavoritos
+}
+```
+
+32) Ajuste os estilos de routes | **Favoritos.js** para: 
+
+
+```Favoritos.js
+
+import { useEffect } from 'react';
+import { useState } from 'react';
+import styled from 'styled-components'
+import livroImg from '../img/livro.png'
+import {  getFavoritos } from '../services/favoritos.js';
+
+const AppContainer = styled.div`
+   width: 100vw;
+   height: 100vh;
+   background-image: linear-gradient(90deg,#002F52 35%,#326589 165%);
+`
+
+const ResultadoContainer = styled.div`
+   display: flex;
+   flex-wrap: wrap;
+   justify-content: center;
+`
+
+const Resultado = styled.div`
+   display: flex;
+   justify-content: center;
+   align-items: center;
+   margin: 20px 0;
+   cursor: pointer;
+   text-align: center;
+   padding: 0 100px;
+   p {
+       width: 200px;
+       color: #FFF;
+   }
+   img {
+       width: 100px;
+   }
+   &:hover {
+       border: 1px solid white;
+   }
+`
+
+const Titulo = styled.h2`
+   color: #FFF;
+   font-size: 36px;
+   text-align: center;
+   width: 100%;
+   padding-top: 35px
+`
+
+
+```
+
+
+
+32) Agora vamos ajustar a função para  **Favoritos.js** 
+
+```
+import { useEffect } from 'react';
+import { useState } from 'react';
+import styled from 'styled-components'
+import livroImg from '../img/livro.png'
+import {  getFavoritos } from '../services/favoritos.js';
+
+const AppContainer = styled.div`
+   width: 100vw;
+   height: 100vh;
+   background-image: linear-gradient(90deg,#002F52 35%,#326589 165%);
+`
+
+const ResultadoContainer = styled.div`
+   display: flex;
+   flex-wrap: wrap;
+   justify-content: center;
+`
+
+const Resultado = styled.div`
+   display: flex;
+   justify-content: center;
+   align-items: center;
+   margin: 20px 0;
+   cursor: pointer;
+   text-align: center;
+   padding: 0 100px;
+   p {
+       width: 200px;
+       color: #FFF;
+   }
+   img {
+       width: 100px;
+   }
+   &:hover {
+       border: 1px solid white;
+   }
+`
+
+const Titulo = styled.h2`
+   color: #FFF;
+   font-size: 36px;
+   text-align: center;
+   width: 100%;
+   padding-top: 35px
+`
+
+function Favoritos() {
+  const [favoritos, setFavoritos] = useState([])
+  useEffect(() => {
+    fetchFavoritos()
+  }, [])
+
+
+  async function fetchFavoritos() {
+    const favoritosDaAPI = await getFavoritos()
+    setFavoritos(favoritosDaAPI)
+  }
+
+  return (
+    <AppContainer>
+      <div>
+        <Titulo>Aqui estão seus livros favoritos:</Titulo>
+        <ResultadoContainer>
+          {
+            favoritos.length !== 0 ? favoritos.map(favorito => (
+              <Resultado>
+                <p>{favorito.nome}</p>
+                <img src={livroImg} />
+              </Resultado>
+            )) : null
+          }
+        </ResultadoContainer>
+      </div>
+    </AppContainer>
+  );
+}
+
+
+export default Favoritos
+```
+
+
+Teste
