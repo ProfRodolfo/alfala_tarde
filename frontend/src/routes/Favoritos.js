@@ -65,7 +65,7 @@ function Favoritos() {
             favoritos.length !== 0 ? favoritos.map(favorito => (
               <Resultado>
                 <p>{favorito.nome}</p>
-                <img src={livroImg} />
+                <img src={livroImg} alt='img' />
               </Resultado>
             )) : null
           }
