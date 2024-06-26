@@ -2,20 +2,18 @@ import { useEffect } from 'react';
 import { useState } from 'react';
 import styled from 'styled-components'
 import livroImg from '../img/livro.png'
-import {  getFavoritos } from '../services/favoritos.js';
+import {  getFavoritos, deleteFavorito } from '../services/favoritos.js';
 
 const AppContainer = styled.div`
    width: 100vw;
    height: 100vh;
    background-image: linear-gradient(90deg,#002F52 35%,#326589 165%);
 `
-
 const ResultadoContainer = styled.div`
    display: flex;
    flex-wrap: wrap;
    justify-content: center;
 `
-
 const Resultado = styled.div`
    display: flex;
    justify-content: center;
@@ -35,7 +33,6 @@ const Resultado = styled.div`
        border: 1px solid white;
    }
 `
-
 const Titulo = styled.h2`
    color: #FFF;
    font-size: 36px;
@@ -56,6 +53,12 @@ function Favoritos() {
     setFavoritos(favoritosDaAPI)
   }
 
+  async function deletarFavorito(id){
+    await deleteFavorito(id)
+    await fetchFavoritos()
+    alert(`Livro de id: ${id} deletado!`)
+  }
+
   return (
     <AppContainer>
       <div>
@@ -63,7 +66,7 @@ function Favoritos() {
         <ResultadoContainer>
           {
             favoritos.length !== 0 ? favoritos.map(favorito => (
-              <Resultado>
+              <Resultado onClick={() => deletarFavorito(favorito.id)}>
                 <p>{favorito.nome}</p>
                 <img src={livroImg} alt='img' />
               </Resultado>
